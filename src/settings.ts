@@ -13,6 +13,12 @@ export const DEFAULT_SETTINGS: ObsidianBookmarkManagerSettings = {
     testSetting: false
 }
 
+/**
+ * Settings ideas:
+ *  - Target directory to add new bookmarks
+ *  - A user-agent to use
+ *  - A template to use
+ */
 export class ObsidianBookmarkManagerSettingsTab extends PluginSettingTab {
     public plugin: ObsidianBookmarkManager;
 

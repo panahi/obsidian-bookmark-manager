@@ -1,9 +1,9 @@
 import typescript from '@rollup/plugin-typescript';
 import { nodeResolve } from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
+import json from '@rollup/plugin-json';
 import copy from 'rollup-plugin-copy';
 import "dotenv/config";
-console.log(process.env);
 
 const isProd = (process.env.BUILD === 'production');
 let devVaultPath = process.env.OBSIDIAN_VAULT_PATH
@@ -30,6 +30,7 @@ const cfg = {
     },
     external: ["obsidian"],
     plugins: [
+        json(),
         typescript(),
         nodeResolve({ browser: true }),
         commonjs(),
