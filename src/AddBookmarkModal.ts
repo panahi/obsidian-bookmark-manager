@@ -23,17 +23,17 @@ export default class AddBookmarkModal extends Modal {
         this.open();
     }
 
-    private display() {
+    private display(): void {
         this.renderHeader();
         this.inputComponent = this.renderURLInput();
     }
 
-    private renderHeader() {
+    private renderHeader(): void {
         const headerEl: HTMLHeadingElement = this.contentEl.createEl('h2', { cls: "bookmarkModalHeader" });
         headerEl.setText("Add a new bookmark");
     }
 
-    private createButton(container: HTMLElement, text: string, callback: (evt: MouseEvent) => any) {
+    private createButton(container: HTMLElement, text: string, callback: (evt: MouseEvent) => any): ButtonComponent {
         const btn = new ButtonComponent(container);
         btn.setButtonText(text)
             .onClick(callback);
@@ -65,7 +65,7 @@ export default class AddBookmarkModal extends Modal {
         return textComponent;
     }
 
-    private renderTypeChooser(container: HTMLDivElement) {
+    private renderTypeChooser(container: HTMLDivElement): void {
         const dropdown = new DropdownComponent(container);
 
         //@ts-ignore
@@ -91,7 +91,7 @@ export default class AddBookmarkModal extends Modal {
         }
     }
 
-    private async submit() {
+    private async submit(): Promise<void> {
         if (this.currentUrl && this.linkCategory) {
             let bookmark = new Bookmark(this.currentUrl, this.linkCategory);
             try {
@@ -100,41 +100,41 @@ export default class AddBookmarkModal extends Modal {
                 if (fileCreated) {
                     this.close();
                 } else {
-                    new Notice("No file was created");
+                    new Notice("No file was created", 2500);
                     this.close();
                 }
             } catch (err) {
                 console.log(err);
-                new Notice(err);
+                new Notice(err, 2500);
                 this.close();
             }
             console.log(bookmark);
         } else {
-            new Notice("Please set a URL and choose a category");
+            new Notice("Please set a URL and choose a category", 2500);
         }
     }
 
-    private cancel() {
+    private cancel(): void {
         this.close();
     }
 
-    private removeInputListener() {
+    private removeInputListener(): void {
         this.inputComponent.inputEl.removeEventListener('keydown', this.submitEnterCallback)
     }
 
-    reload() {
+    reload(): void {
         this.contentEl.empty();
         this.display();
     }
 
-    onOpen() {
+    onOpen(): void {
         super.onOpen();
 
         this.inputComponent.inputEl.focus();
         this.inputComponent.inputEl.select();
     }
 
-    onClose() {
+    onClose(): void {
         super.onClose();
         this.removeInputListener();
         this.currentUrl = undefined;

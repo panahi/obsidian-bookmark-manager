@@ -1,0 +1,21 @@
+export const Type = {
+    BOOKMARK: "bookmark",
+    FEED: "feed",
+    FORMATTED_NOTE: "formatted note",
+    GROUP: "group",
+    HTML: "html",
+    MARKDOWN: "markdown",
+    PDF: "PDF document",
+    PICTURE: "picture",
+    PLIST: "plist",
+    QUICKTIME: "quicktime",
+    RTF: "rtf",
+    RTFD: "rtfd",
+    SCRIPT: "script",
+    SHEET: "sheet",
+    SMART_GROUP: "smart group",
+    TXT: "txt",
+    UNKOWN: "unknown",
+    WEBARCHIVE: "webarchive",
+    XML: "xml"
+}

@@ -36,11 +36,15 @@ export default class Bookmark {
         this.hasError = false;
     }
 
-    public getTitle() {
+    public getTitle(): string {
         return this.metadata.title ?? this.url;
     }
 
-    public async loadContent() {
+    private sanitizeDomain(): string {
+        return this.metadata.domain ? this.metadata.domain.replace(/[^a-zA-Z0-9 _-]/g, '_') : "";
+    }
+
+    public async loadContent(): Promise<any> {
         let options = {
             uri: this.url,
             simple: true, /* reject promise for non-2xx responses */
@@ -72,7 +76,7 @@ export default class Bookmark {
             });
     }
 
-    private processArticleData(articleData: ArticleData) {
+    private processArticleData(articleData: ArticleData): void {
         if (!articleData) {
             return;
         }
@@ -133,24 +137,29 @@ export default class Bookmark {
         let file = "---\n"
         file += `id: ${crypto.randomUUID().replace("-", "")}\n`;
         file += `aliases:\n`;
-        file += `tags:\n`;
+        file += `tags: bookmark ${this.sanitizeDomain()} ${this.category}\n`;
         file += `type: bookmark\n`;
         file += `status: 🟥\n`;
         file += `created: ${timestamp}\n`;
         file += `modified: ${timestamp}\n`;
+        file += `url: ${this.url}\n`;
         file += "---\n\n";
 
+        file += "`button-filebookmark`  `button-syncbookmark`  `button-verifybookmark` \n\n"
         file += `# Metadata\n`;
-        file += `CanonicalURL:: ${this.metadata.canonicalUrl}\n`;
-        file += `Category:: ${this.category}\n`;
-        file += `Domain:: ${this.metadata.domain}\n`;
-        file += `Author:: ${this.metadata.author}\n`;
-        file += `Description:: ${this.metadata.description}\n`;
-        file += `PublicationDate:: ${this.metadata.publicationDate}\n`
+        file += `**OriginalTitle**:: ${this.getTitle()}\n`
+        file += `**CanonicalURL**:: <${this.metadata.canonicalUrl}>\n`;
+        file += `**Category**:: ${this.category}\n`;
+        file += `**Domain**:: ${this.metadata.domain}\n`;
+        file += `**Author**:: ${this.metadata.author}\n`;
+        file += `**Description**:: ${this.metadata.description}\n`;
+        file += `**PublicationDate**:: ${this.metadata.publicationDate}\n`
 
         file += "\n# Archive\n";
-        file += `DevonthinkID::\n`;
-        file += `DevonthinkSyncTimestamp::\n`;
+        file += `**DevonthinkID**::\n`;
+        file += `**DevonthinkLink**::\n`;
+        file += `**DevonthinkSyncTimestamp**::\n`;
+        file += `**DevonthinkVerified**:: 🟥`
 
         file += `\n# Summary\n`;
         file += `# Highlights\n`;
