@@ -11,6 +11,7 @@ declare namespace Devonthink {
 
 
         createPDFDocumentFrom(url: string, params?: CreatePDFRequest): Record;
+        createRecordWith(params: CreateRecordParams, locationParams: { in: string }): Record;
 
         getRecordWithUuid(uuid: string, params?: SearchInDatabaseParam): Record;
 
@@ -38,5 +39,12 @@ declare namespace Devonthink {
         database?: string;
         parentUuid?: string;
         kind?: string;
+    }
+
+    interface CreateRecordParams extends SearchInDatabaseParam {
+        name?: string
+        type?: string
+        URL?: string
+        tags?: string[]
     }
 }

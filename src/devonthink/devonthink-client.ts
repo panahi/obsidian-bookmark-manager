@@ -1,6 +1,6 @@
 import { run } from '@jxa/run';
 import { Group } from 'src/FileUtil';
-import { Application, ItemSearchParameters } from "./types/Application";
+import { Application, CreateRecordParams, ItemSearchParameters } from "./types/Application";
 import { Database } from "./types/Database";
 import { Content, Parent, Record, SmartGroup, TagGroup } from "./types/Record";
 
@@ -53,6 +53,49 @@ export const getJDGroupStructure = (): Promise<Group> => {
         return rootGroup;
     })
 }
+
+export const createBookmark = (sourceURL: string, fileName: string, parentID?: string, metadata?: CustomMetadata, tags?: string[]): Promise<string> => {
+    return run<string>((url: string, name: string, parentId?: string, metadata?: CustomMetadata, tags?: string[]) => {
+        //@ts-ignore
+        const dt: Application = Application("Devonthink 3");
+        dt.includeStandardAdditions = true;
+
+        //TODO move to config
+        let createRecordParams: CreateRecordParams = {
+            name: name,
+            type: 'bookmark',
+            URL: url
+        }
+
+        let locationParams: any = {}
+
+        if (parentId !== undefined) {
+            let parent = dt.getRecordWithUuid(parentId);
+            if (parent !== undefined) {
+                locationParams['in'] = parent;
+            }
+        }
+
+        console.log(`Devonthink: Creating bookmark from URL: ${url}`);
+        let createdRecord = dt.createRecordWith(createRecordParams, locationParams);
+        console.log(`Devonthink: Setting metadata of new bookmark to ${JSON.stringify(metadata)}`)
+        if (metadata) {
+            //@ts-ignore
+            createdRecord.customMetaData = metadata;
+        }
+        if (tags && tags.length > 0) {
+            let updatedTags = tags;
+            if (createdRecord.tags().length > 0) {
+                //@ts-ignore
+                updatedTags.push(...createdRecord.tags());
+            }
+            //@ts-ignore
+            createdRecord.tags = updatedTags;
+        }
+        return createdRecord.uuid();
+    }, sourceURL, fileName, parentID, metadata, tags)
+}
+
 
 export const createPDFFromURL = (sourceURL: string, fileName: string, parentID?: string, metadata?: CustomMetadata, tags?: string[]): Promise<string> => {
     return run<string>((url: string, name: string, parentId?: string, metadata?: CustomMetadata, tags?: string[]) => {

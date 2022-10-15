@@ -1,11 +1,20 @@
 import { App, Notice, TFile } from "obsidian";
-import { createPDFFromURL, getUUIDforItem } from "./devonthink/devonthink-client";
+import { BookmarkCategory } from "./BookmarkCategory";
+import { createBookmark, createPDFFromURL, getUUIDforItem } from "./devonthink/devonthink-client";
 import FileUtil from "./FileUtil";
+
+const CATEGORIES_NOT_TO_ARCHIVE: string[] = [
+    "uncategorized",
+    "podcast",
+    "product",
+    "video"
+]
 
 type SyncFields = {
     title: string
     url: string
     obsidianId: string
+    category: string
     devonthinkId?: string
     tags?: string[]
     highlights?: string[]
@@ -64,7 +73,7 @@ export default class SyncManager {
             }
         }
 
-        let url = "", obsidianId = "", devonthinkId;
+        let url = "", obsidianId = "", category = "", devonthinkId;
         let tags: string[] = [];
 
         for (const line of splitContents) {
@@ -81,6 +90,8 @@ export default class SyncManager {
                 url = url.replace('>', '');
             } else if (line.indexOf("DevonthinkID") >= 0) {
                 devonthinkId = getMetadataValue(line, "::");
+            } else if (line.indexOf("**Category**") >= 0) {
+                category = getMetadataValue(line, "::");
             }
         }
 
@@ -88,6 +99,7 @@ export default class SyncManager {
             title: basename,
             url: url,
             obsidianId: obsidianId,
+            category: category,
             devonthinkId: devonthinkId,
             tags: tags
         }
@@ -97,7 +109,8 @@ export default class SyncManager {
         return {
             title: "",
             url: "",
-            obsidianId: ""
+            obsidianId: "",
+            category: ""
         }
     }
 
@@ -114,13 +127,7 @@ export default class SyncManager {
             return false;
         }
 
-        let devonthinkId = await createPDFFromURL(
-            values.url,
-            obsidianFile.basename,
-            devonthinkGroupId,
-            { mdobsidianlink: this.getObsidianItemURL(values.obsidianId) },
-            values.tags
-        )
+        let devonthinkId = await this.createDevonthinkFile(devonthinkGroupId, values, obsidianFile);
 
         if (!devonthinkId) {
             new Notice("No devonthink ID was created", 2500);
@@ -128,6 +135,26 @@ export default class SyncManager {
         }
 
         return this.fileUtil.updateDevonthinkData(obsidianFile.path, devonthinkId, false, true);
+    }
+
+    private async createDevonthinkFile(groupId: string, values: SyncFields, obsidianFile: TFile): Promise<string> {
+        if (CATEGORIES_NOT_TO_ARCHIVE.indexOf(values.category) >= 0) {
+            return await createBookmark(
+                values.url,
+                obsidianFile.basename,
+                groupId,
+                { mdobsidianlink: this.getObsidianItemURL(values.obsidianId) },
+                values.tags
+            )
+        } else {
+            return await createPDFFromURL(
+                values.url,
+                obsidianFile.basename,
+                groupId,
+                { mdobsidianlink: this.getObsidianItemURL(values.obsidianId) },
+                values.tags
+            )
+        }
     }
 
     private async performBidirectionalSync() {

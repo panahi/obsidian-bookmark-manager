@@ -148,12 +148,12 @@ export default class Bookmark {
         file += "`button-filebookmark`  `button-syncbookmark`  `button-verifybookmark` \n\n"
         file += `# Metadata\n`;
         file += `**OriginalTitle**:: ${this.getTitle()}\n`
-        file += `**CanonicalURL**:: <${this.metadata.canonicalUrl}>\n`;
+        file += `**CanonicalURL**:: <${this.metadata.canonicalUrl || this.url}>\n`;
         file += `**Category**:: ${this.category}\n`;
-        file += `**Domain**:: ${this.metadata.domain}\n`;
-        file += `**Author**:: ${this.metadata.author}\n`;
-        file += `**Description**:: ${this.metadata.description}\n`;
-        file += `**PublicationDate**:: ${this.metadata.publicationDate}\n`
+        file += `**Domain**:: ${this.metadata.domain || ""}\n`;
+        file += `**Author**:: ${this.metadata.author || ""}\n`;
+        file += `**Description**:: ${this.metadata.description || ""}\n`;
+        file += `**PublicationDate**:: ${this.metadata.publicationDate || ""}\n`
 
         file += "\n# Archive\n";
         file += `**DevonthinkID**::\n`;
