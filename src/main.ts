@@ -1,7 +1,7 @@
 import { Notice, Plugin } from 'obsidian';
 import AddBookmarkModal from './AddBookmarkModal';
 import { DEFAULT_SETTINGS, ObsidianBookmarkManagerSettings, ObsidianBookmarkManagerSettingsTab } from './settings';
-import { getJDGroupStructure } from './devonthink/devonthink-client';
+import { getJDGroupStructure, getNewDocumentsWithHighlights } from './devonthink/devonthink-client';
 import FileUtil, { Group } from './FileUtil';
 import SyncManager from './SyncManager';
 
@@ -15,17 +15,23 @@ export default class ObsidianBookmarkManager extends Plugin {
 		this.fileUtil = new FileUtil(this.app);
 		this.syncManager = new SyncManager(this.app);
 		await this.loadSettings();
-		let consistentStructure = await this.verifyJohnnyDecimalConsistency();
-		if (!consistentStructure) {
-			new Notice("Identified discrepencies between Obsidian and Devonthink");
-		}
-
 		const ribbonIconEl = this.addRibbonIcon('link', 'Bookmarks', (evt: MouseEvent) => {
 			new AddBookmarkModal(this.app).open();
 		});
 
 		// This adds a settings tab so the user can configure various aspects of the plugin
 		this.addSettingTab(new ObsidianBookmarkManagerSettingsTab(this.app, this));
+
+		this.addCommand({
+			id: 'verify-structure',
+			name: 'Verify Devonthink and Obsidian consistency',
+			callback: async () => {
+				let consistentStructure = await this.verifyJohnnyDecimalConsistency();
+				if (!consistentStructure) {
+					new Notice("Identified discrepencies between Obsidian and Devonthink");
+				}
+			}
+		})
 
 		this.addCommand({
 			id: 'add-bookmark',
@@ -50,6 +56,10 @@ export default class ObsidianBookmarkManager extends Plugin {
 				this.fileUtil.markActiveFileVerified();
 			}
 		})
+
+		this.registerDomEvent(document, 'click', (evt: MouseEvent) => {
+			console.log('click', evt);
+		});
 	}
 
 	onunload() {

@@ -13,10 +13,14 @@ declare namespace Devonthink {
         createPDFDocumentFrom(url: string, params?: CreatePDFRequest): Record;
         createRecordWith(params: CreateRecordParams, locationParams: { in: string }): Record;
 
+        delete(record: Record, params?: { in: string }): boolean;
+
         getRecordWithUuid(uuid: string, params?: SearchInDatabaseParam): Record;
 
         getDatabaseWithId(id: number): Database
         getDatabaseWithUuid(uuid: string): Database
+
+        summarizeHighlightsOf(params: SummarizeHighlightParams): Record
     }
 
     interface SearchInDatabaseParam {
@@ -46,5 +50,10 @@ declare namespace Devonthink {
         type?: string
         URL?: string
         tags?: string[]
+    }
+
+    interface SummarizeHighlightParams extends SearchInDatabaseParam {
+        records: Record[],
+        to: "markdown"
     }
 }

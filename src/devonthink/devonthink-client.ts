@@ -8,6 +8,51 @@ export type CustomMetadata = {
     mdobsidianlink: string
 }
 
+export type DevonthinkReference = {
+    id: string,
+    name: string
+    parentId: string
+    parentName: string
+}
+
+export const getNewDocumentsWithHighlights = (): Promise<DevonthinkReference[]> => {
+    return run<DevonthinkReference[]>(() => {
+        //@ts-ignore
+        const dt: Application = Application("Devonthink 3");
+        dt.includeStandardAdditions = true;
+        const db: Database = dt.getDatabaseWithUuid('8E112855-5B76-4FE5-82F5-5D35AD44D66D');
+        const docs: Record[] = db.contents();
+
+        let record = dt.getRecordWithUuid('8ACF855F-7991-4B96-B90B-DF80ADFB7F47');
+        let parentRecord = dt.getRecordWithUuid('ABACA609-EDB4-4F33-B2D1-42BB663E6A28')
+
+        for (const doc of docs) {
+            let highlights = doc.annotationCount();
+            let parent = doc.parents()
+            let parents = [];
+            let parentRecord = null;
+            for (const item of parent) {
+                if (item.type() === 'group') {
+                    parents.push(item.name());
+                    parentRecord = item;
+                }
+            }
+            if (highlights > 0) {
+                console.log(`File ${doc.name()} with type ${doc.type()} with annotation count ${highlights} with parents ${parents}`);
+                console.log(doc.annotation());
+
+                let recordList = [doc];
+                //@ts-ignore
+                let summaryDoc = dt.summarizeHighlightsOf({ records: recordList, to: "rich" }, { in: parentRecord });
+                console.log(`Summary doc created ${summaryDoc.name()}`);
+                console.log(summaryDoc.plainText());
+            }
+        }
+
+        return [];
+    })
+}
+
 export const getJDGroupStructure = (): Promise<Group> => {
     return run<Group>(() => {
         const jdregex = /^[0-9][0-9]-[0-9][0-9]/

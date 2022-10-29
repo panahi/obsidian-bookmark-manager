@@ -57,15 +57,20 @@ export default class Bookmark {
             .then((response) => {
                 if (!response) {
                     throw new Error("Bad response");
+                } else {
+                    console.log(response);
                 }
 
                 const contentType = response.headers['content-type'] || "unknown";
                 this.metadata.contentType = contentType;
                 if (contentType.indexOf("text/html") >= 0) {
                     return Promise.resolve(response.body);
+                } else {
+                    console.log("unknown content type", contentType);
                 }
             }).then((body) => {
                 if (body) {
+                    console.log("extracting body");
                     return extract(body);
                 }
             }).then(this.processArticleData.bind(this))
@@ -77,6 +82,7 @@ export default class Bookmark {
     }
 
     private processArticleData(articleData: ArticleData): void {
+        console.log(articleData);
         if (!articleData) {
             return;
         }
@@ -154,6 +160,12 @@ export default class Bookmark {
         file += `**Author**:: ${this.metadata.author || ""}\n`;
         file += `**Description**:: ${this.metadata.description || ""}\n`;
         file += `**PublicationDate**:: ${this.metadata.publicationDate || ""}\n`
+
+        file += `\n# Related Links\n`;
+        let links = this.metadata.links || [];
+        for (const link of links) {
+            file += "- <a href='#' class='bookmark-related-link' target='_blank' rel='noopener'>" + link + "</a>\n";
+        }
 
         file += "\n# Archive\n";
         file += `**DevonthinkID**::\n`;
